@@ -1,12 +1,12 @@
 import faiss
 import numpy as np
 from groq import Groq
-from pypdf import PDFReader
+from pypdf import PdfReader
 from sentence_transformer import SentenceTransformer
 
 #load pdfs
 def load_pdf(pdf_path):
-  reader=PDFReader(str(pdf_path))
+  reader=PdfReader(str(pdf_path))
   mypages=[i.extract_text() or "" for i in reader.pages]
   full_text= "\n".join(mypages).strip()
   if not full_text:
@@ -34,14 +34,14 @@ def build_vectors(chunks, model_name="all-MiniLM-L6-v2"):
   faiss.normalize_L2(embed_vectors)
   index=faiss.IndexFlatIP(embed_vectors.shape[1])
   index.add(embed_vectors)
-  return index,embed_model
+  return index, embed_model
 
 #call loadpdf,chunk,embedding
 def load_base(pdf_path= "01_College_Information.pdf"):
   full_text-load_pdf(pdf_path)
   chunks=create_chunks(full_text)
-  embed_model,index=build_vector(chunks)
-  return embed_model, chunks, index
+  index, embed_model=build_vector(chunks)
+  return index, embed_model, chunks
 
 #retrieve
 def retrieve_content(question, embed_model, chunks, index, num_chunks=3):
@@ -54,8 +54,8 @@ def retrieve_content(question, embed_model, chunks, index, num_chunks=3):
   sim_scores, vec_indices=index.search(query_embed,min(num_chunks, len(chunks)))
   background=""
   for i in vec_indices[0]:
-    if i!=-1:
-      background+=chunks[i] + "\n\n"
+    if i!= -1:
+      background += chunks[i] + "\n\n"
   return background  
 
 #Ask
@@ -76,6 +76,7 @@ def ask_rag(question, embed_model, chunks, index, api_key, num_chunks, model_nam
               temperature=0.3,
   )
   return response.choices[0].message.content
+  
   
   
               
