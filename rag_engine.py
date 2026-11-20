@@ -2,7 +2,7 @@ import faiss
 import numpy as np
 from groq import Groq
 from pypdf import PdfReader
-from sentence-transformer import SentenceTransformer
+from sentence_transformer import SentenceTransformer
 
 #load pdfs
 def load_pdf(pdf_path):
